@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input type="file" id="uploadImg" onchange="xmTanUploadImg(this)">
+    <img src="" alt="" id="selectImg">
+    <a href="javascript:void()" download="picture.jpg" id="xmTanDownload">点此下载</a>
+
+    <script>
+        function xmTanUploadImg(obj) {
+            var file = obj.files[0];
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function (e) {    //成功读取文件
+                var img = document.getElementById("selectImg");
+                img.src = e.target.result;   //或 img.src = this.result / e.target == this
+     
+                //实现点击下载图片功能
+                var xmTanDownload =  document.getElementById("xmTanDownload");
+                xmTanDownload.setAttribute("href", e.target.result);  //给a标签设置href
+            };
+        }
+    </script>
+</body>
+</html>
+
