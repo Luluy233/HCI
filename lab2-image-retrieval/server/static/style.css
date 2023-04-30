@@ -2,6 +2,12 @@ body{
     background-image:url(images/bg-img.jpg);
 }
 
+.mycollection img{
+    margin-right: 100px;
+    margin-top: 20px;
+    margin-left: 20px;
+}
+
 .navbar .text-center{
     margin: 100px;
     font-size: 50px;
@@ -11,6 +17,7 @@ body{
 .navbar .text-center img{
     height: 50px;
 }
+
 
 #main .table{
     background: white;
@@ -92,15 +99,30 @@ body{
 
 }
 
+#main .table .collect{
+    margin:auto;
+    display:inline-block;
+    background-image:url(images/collect-icon.png);
+    background-color:white;
+    background-size: 40px 40px;
+
+    padding: 8px 10px 8px 40px;
+    background-repeat: no-repeat;
+    border:none;
+    margin-left:80px;
+    margin-top: 20px;
+    width:50px;
+    height: 50px;
+}
+
 #main .table #row1{
     display: none;
 }
 
 #main .table #row1 .tag{
     margin-left:20px;
-    margin-right:300px;
+    margin-right:auto;
     text-align: left;
-    
 }
 
 #main .table #row1 .label{
@@ -114,22 +136,14 @@ body{
     margin-right:15px;
 }
 
-/* #main .table #row1 #tag0,
-#main .table #row1 #tag1,
-#main .table #row1 #tag2,
-#main .table #row1 #tag3,
-#main .table #row1 #tag4{
-    background-color:rgb(202, 242, 164);
-    border:2px solid #75b963;
-    border-radius: 10px;
-    color:white;
-    margin-right: 15px;
+#main .table #row1 td{
+    display: flex;
+    justify-content: space-between;
+    margin-right: -40px;
+}
 
-} */
-
-#main .table #row1 a{
-    display: inline-block;
-    text-align: right;
+#main .table #row1  span a{
+    margin-left:auto;
 }
 
 #main .table #row1 a span{
@@ -151,9 +165,9 @@ body{
     width: 200px;
     height: 200px;
     padding-top: 20px;
-    padding-bottom: 80px;
+    padding-bottom: 20px;
     padding-right: 0px;
-    padding-left: 80px;
+    padding-left: 100px;
     border-left-width: 1px;
     border-bottom-width: 1px;border-right-width: 1px;background: white;
 }
@@ -165,7 +179,7 @@ body{
     height: 200px;
     padding-top: 5px;
     padding-bottom: 5px;
-    padding-right: 0px;
+    padding-right: 5px;
     padding-left: 5px;
     border-left-width: 0px;
     border-bottom-width: 0px;border-right-width: 0px;

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Image Search Engine</title>
+<title>Image Search</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
 <meta http-equiv='cache-control' content="no-cache, must-revalidate, post-check=0, pre-check=0">
@@ -23,7 +23,9 @@
 </head>
 
 <body>
-    
+    <a class="mycollection" href= "{{ url_for('mycollection') }}">
+        <img src="/images/collection.png" alt="" width="60px">
+    </a>
     <!-- 标题栏 -->
     <div class="navbar">
         <h1 class="text-center">
@@ -32,6 +34,7 @@
             &nbsp;&nbsp;
             <a class="navbar-brand" href="">
             <img src="/images/logo.svg"></a>
+            
         </h1>
     </div>
     <div>
@@ -55,15 +58,14 @@
                     <form method=post enctype=multipart/form-data>
                         <!--<input data-bind="value: title" type="text" id="inputTask" placeholder="Path to the image" style="width: 150px;">-->
                         <div class="select" >
-                            <input id="file_input" type="file" name="file" onchange="FileUpload()" required />
-                            <img id="selectImg" src="" >
-                            
+                            <input id="file_input" type="file" name="file" onchange="FileUpload()"/>
+                            <img id="selectImg" src="" > 
                         </div>
                         <!-- <div class="upload-box">
                             <input type="file" id="file-input">
                             <img id="uploaded-image">
                           </div> -->
-                        <div>
+                        <div class="searchANDcollection">
                             <input class="search" type=submit value ="" onclick="fun()"> 
                         </div>       
                              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -85,7 +87,7 @@
                     
                     <a href="">
                         <span>为您找到结果共9条</span>
-                        <button id="clear">Clear</button>  
+                        <button id="clear">Clear</button>
                     </a>
                 </td>
                 <td></td>   
@@ -105,92 +107,146 @@
             <tr>
                 <td>
                     <img id="img0" src="" alt="Norway" width="200" height="200">
+                    <button class="collect" data-img="" ></button>
+                    <!-- <button id="collect" data-img="" conclick="Collect(this)"></button> -->
                 </td>  
                 <td>
     		        <img id="img1" src="" alt="Norway" width="200" height="200">
+                    <button class="collect" data-img="" ></button>
+
                 </td>
                 <td>
-    		        <img id="img2" src="" alt="Norway" width="200" height="200">
+    		        <img id="img2" src"" alt="Norway" width="200" height="200">
+                    <button class="collect" data-img="" ></button>
+
                 </td>
             </tr>
-            <tr>
+            <tr id="tr1">
                 <td>
                     <img id="img3" src="" alt="Norway" width="200" height="200">
+                    <button class="collect" data-img="" ></button>
                 </td>
                 <td>
                     <img id="img4" src="" alt="Norway" width="200" height="200">
+                    <button class="collect" data-img="" ></button>
+                    
                 </td>
                 <td>
-                    <img id="img5" src="" alt="Norway" width="200" height="200">
+                    <img id="img5" src"" alt="Norway" width="200" height="200">
+                    <button class="collect" data-img="" ></button>
+                    
                 </td>
             </tr>
-            <tr>
+            <tr id="tr2">
                 <td>
                     <img id="img6" src="" alt="Norway" width="200" height="200">
+                    <button class="collect" data-img="" ></button>
                 </td>
                 <td>
-                    <img id="img7" src="" alt="Norway" width="200" height="200">
+                    <img id="img7" src"" alt="Norway" width="200" height="200">
+                    <button class="collect" data-img="" ></button>
+
                 </td>
                 <td>
-                    <img id="img8" src="" alt="Norway" width="200" height="200">
+                    <img id="img8" src"" alt="Norway" width="200" height="200">
+                    <button class="collect" data-img="" ></button>
                 </td>
-            </tr>
-            
+            </tr>            
         </tbody>
-       </table>
-
-
-
+       </table
     </div>
 	
     <!-- js -->
-    <script type="text/javascript">
-        // <!-- 图片标签 -->
-        tags = ['animals', 'baby', 'bird', 'car', 'clouds', 'dog', 'female',
-            'flower', 'food', 'indoor', 'lake', 'male', 'night', 'people',
-            'plant_life', 'portrait', 'river', 'sea', 'structures', 'sunset',
-            'transport', 'tree', 'water'];
-
-        // // 显示上传的图片
-        // function xmTanUploadImg(obj) {
-        //     var file = obj.files[0];
-        //     var reader = new FileReader();
-        //     reader.readAsDataURL(file);
-        //     reader.onload = function (e) {    //成功读取文件
-        //         var img = document.getElementById("selectImg");
-        //         img.src = e.target.result;   //或 img.src = this.result / e.target == this
-        //     };
-        // }
-
-
+    <!-- <script src="{{ url_for('static', filename='main.js') }}"></script> -->
+    <script>
         function myFunction(){
             document.getElementById("predictedResult").innerHTML= "";
             $('#clear').hide();
         }
 
-                // 显示上传的图片
+        // 显示上传的图片
         function FileUpload()
         {
             var fileInput = document.getElementById('file_input');
             var uploadedImage = document.getElementById('selectImg');
 
             fileInput.addEventListener('change', (event) => {
-            var file = event.target.files[0];
-            var reader = new FileReader();
-  
-            reader.readAsDataURL(file);
-  
-            reader.onload = () => {
-                uploadedImage.src = reader.result;
-                uploadedImage.style.display = 'block';
-            }
-        });
+                var file = event.target.files[0];
+                var reader = new FileReader();
+
+                reader.readAsDataURL(file);
+
+                reader.onload = () => {
+                    uploadedImage.src = reader.result;
+                    uploadedImage.style.display = 'block';
+                }
+            });
         }
-        
+
+        // 获取所有class为collect的button元素
+        var btnList = document.getElementsByClassName("collect");
+        // 遍历每个button元素并为其添加点击事件监听器
+        for (var i = 0; i < btnList.length; i++) {
+            //判断是否已收藏         
+            var btn=btnList[i];
+            // 图片链接 
+            var imgSrc = btn.previousElementSibling.src;
+            // 图片名
+            var imgName = imgSrc.substring(imgSrc.lastIndexOf('/') + 1);
+            // $.ajax({
+            //         url:"is_collected",
+            //         type:"POST",
+            //         data:{
+            //             imgSrc:imgSrc,
+            //             imgName:imgName
+            //         },
+            //         success: function(response) {
+            //             //点击button前已收藏
+            //             if(response.img_collect){     
+            //                 btn.style.backgroundImage="url(images/collected-icon.png)"; 
+            //             }
+            //             else{  //点击button前未收藏
+            //                 btn.style.backgroundImage="url(images/collect-icon.png)";  
+            //             }
+            //         },
+            // });          
+
+            //添加监听器          
+            btnList[i].addEventListener("click", function(event){
+                 // event.target获取触发事件的按钮
+                var button=event.target;
+                // 图片链接 
+                var imgSrc = button.previousElementSibling.src;
+                // 图片名
+                var imgName = imgSrc.substring(imgSrc.lastIndexOf('/') + 1);
+                $.ajax({
+                    url:"collect",
+                    type:"POST",
+                    data:{
+                        imgSrc:imgSrc,
+                        imgName:imgName
+                        // collected:button.dataset.collected
+                    },
+                    success: function(response) {
+                        //点击button前已收藏
+                        if(response.img_collect){     
+                            button.style.backgroundImage="url(images/collect-icon.png)"; 
+                        }
+                        else{  //点击button前未收藏
+                            button.style.backgroundImage="url(images/collected-icon.png)";  
+                        }
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                    }  
+                });     
+            });
+        }
+
+
         function fun(){
             
             $('#load').show();
-                    
             $("form").submit(function(evt){	 
             //$('#loader-icon').show(); 
                         
@@ -212,10 +268,14 @@
             
                 success: function (response) {
                     $('#load').hide();
-                     $('#row1').show();
+                    $('#row1').show();
                     //$('#clear').show();
                     //console.log(response[1]);
-                      //document.getElementById("predictedResult").innerHTML= response; 
+                    //document.getElementById("predictedResult").innerHTML= response; 
+                    // 记录结果图片数组的编号
+
+                    // var result=[];
+
                     document.getElementById("img0").src = response.images.image0;
                     document.getElementById("img1").src = response.images.image1;
                     document.getElementById("img2").src = response.images.image2;
@@ -227,7 +287,7 @@
                     document.getElementById("img8").src = response.images.image8;
 
                     const labelsContainer = document.querySelector('.tag');
-      
+
                     // 动态创建并添加标签元素
                     response.upload_tag.forEach(tag => {
                         const span = document.createElement('span');
@@ -236,24 +296,86 @@
                         // span.classList.add(`label-${tag}`);
                         labelsContainer.appendChild(span);
                     });
+               
+                    // 获取所有类名为label的元素
+                    var checkboxes = document.querySelectorAll('span.label');
+                    //为标签元素添加监听器
+                    for(var i=0;i<checkboxes.length;i++){
+                        checkboxes[i].addEventListener("click",function(event){
+                            var selected=event.target;
+                            for(var j=0;j<checkboxes.length;j++){
+                                if(i!=j){
+                                    checkboxes[j].style.backgroundColor='rgb(154, 171, 219)';
+                                }
+                            }
+                            selected.style.backgroundColor='#caa4e2';
+                            select_tag=selected.textContent;
+                            $.ajax({
+                            url: 'filter',
+                            type: 'POST',
+                            data:{
+                                select_tag:select_tag
+                            },
+                            //async: false,
+                            cache: false,
+                            contentType: false,
+                            enctype: 'multipart/form-data',
+                            processData: false,
 
-                    // for (var i=0;i<response.upload_tag.length;i++){
-                    //     console.log(response.upload_tag[i])
-                    //         document.getElementById("tag"+i).innerHTML=response.upload_tag[i];
+                            success: function (response) {
+                                console.log("filting success!");
+                                console.log(response);
+                                // 遍历reponse中的图片数量
+                                //显示过滤结果
+                                // for (i = 0; i < response['num']; i++) {
+                                //     document.getElementById('img' + i).src = response['image' + i];
+                                // }
+                                // //不显示过滤结果
+                                // for (j = response['num']; j < 9; j++) {
+                                //     document.getElementById('img' + j).parentNode.style.display = 'none';
+                                // }
+                                for(var i=1;i<3;i++){
+                                    $('#tr'+i).hide();
+                                }
+                            }
+                        })
+                        })
+                    }
+
+                    // for (var i = 0; i < btnList.length; i++) {
+                    //     //判断是否已收藏         
+                    //     var btn=btnList[i];
+                    //     // 图片链接 
+                    //     var imgSrc = btn.previousElementSibling.src;
+                    //     // 图片名
+                    //     var imgName = imgSrc.substring(imgSrc.lastIndexOf('/') + 1);
+                    //     $.ajax({
+                    //             url:"is_collected",
+                    //             type:"POST",
+                    //             data:{
+                    //                 imgSrc:imgSrc,
+                    //                 imgName:imgName
+                    //             },
+                    //             success: function(response) {
+                    //                 //点击button前已收藏
+                    //                 if(response.img_collect){     
+                    //                     btn.style.backgroundImage="url(images/collected-icon.png)"; 
+                    //                 }
+                    //                 else{  //点击button前未收藏
+                    //                     btn.style.backgroundImage="url(images/collect-icon.png)";  
+                    //                 }
+                    //             },
+                    //     });        
                     // }
-                    
                     $('#table').show();
                     $('#clear').show();
                 }
 
             });
-
         return false;
         })};
 
-        
-        
     </script>
-
+  
 </body>
 </html>

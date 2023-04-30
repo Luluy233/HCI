@@ -12,6 +12,10 @@
     <a href="javascript:void()" download="picture.jpg" id="xmTanDownload">点此下载</a>
 
     <script>
+        var str="/result/im135.jpg"
+        var num=str.replace(/[^\d]/g,' ')
+        console.log(num)
+
         function xmTanUploadImg(obj) {
             var file = obj.files[0];
             var reader = new FileReader();
@@ -29,3 +33,108 @@
 </body>
 </html>
 
+
+# @app.route('/collect', methods=['POST'])
+# def collect():
+# 	filename = request.form['filename']
+# 	image_file = request.files['image']
+# 	image_file.save(os.path.join(app.static_folder, 'images', filename))
+# 	return 'Image saved successfully!'
+#
+# @app.route('/collection')
+# def collection():
+# 	image_filenames = os.listdir(os.path.join(app.static_folder, 'images'))
+# 	return render_template('collection.html', image_filenames=image_filenames)
+
+
+# 根据id获取图片内容
+# @app.route('/image', methods=['GET'])
+# def get_img():
+#     imageId = request.values.get('id')
+#
+#     # 将对应图片复制到static文件夹下
+#     with open('database/dataset/im' + imageId + '.jpg', mode='rb') as f:
+#         byte_data = f.read()
+#
+#     return Response(byte_data, mimetype='image/jpeg')
+#
+#
+# # 获取用户全部收藏
+# @app.route('/collect/all', methods=['GET'])
+# def get_all_collect():
+#     res = []
+#     with open('database/favorites.txt', mode='r') as f:
+#         for i in f.readlines():
+#             res.append(i.strip())
+#     return jsonify(res)
+#
+#
+# # 改变图片收藏状态
+# @app.route('/collect', methods=['GET'])
+# def change_img_collect():
+#     imageId = request.values.get('id')
+#
+#     # 获取collect文件夹内容
+#     with open('database/favorites.txt', mode='r') as f:
+#         s = f.readlines()
+#
+#     p = []
+#     isCollected = False
+#     for i in s:
+#         # 已经收藏过了
+#         if i.strip() == imageId:
+#             isCollected = True
+#         else:
+#             p.append(i.strip())
+#
+#     if not isCollected:
+#         p.append(imageId)
+#
+#     # 写文件
+#     n = len(p)
+#     with open('database/favorites.txt', mode='w') as f:
+#         for index, item in enumerate(p):
+#             if index != n - 1:
+#                 f.write(item + '\n')
+#             else:
+#                 f.write(item)
+#
+#     return jsonify({
+#         'status': True,
+#     })
+#
+#
+# @app.route("/tags", methods=['GET'])
+# def get_tags():
+#     res = []
+#     for i in typeDict.keys():
+#         res.append({
+#             'label': i,
+#             'size': len(typeDict[i]),
+#         })
+#     res.sort(key=lambda x: x['size'], reverse=True)
+#     return jsonify(res)
+#
+#
+# @app.route('/info', methods=['GET'])
+# def get_img_info():
+#     imageId = request.values.get('id')
+#
+#     # 查看favorites文件夹
+#     with open('database/favorites.txt', mode='r') as f:
+#         isCollected = False
+#         for i in f.readlines():
+#             if i.strip() == imageId:
+#                 isCollected = True
+#                 break
+#
+#     # 获取图片类型
+#     tags = []
+#     for i in tagDict.keys():
+#         if imageId in tagDict[i]:
+#             tags.append(i)
+#
+#     return jsonify({
+#         'isCollected': isCollected,
+#         'tags': tags,
+#     })

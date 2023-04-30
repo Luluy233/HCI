@@ -12,6 +12,8 @@ import os
 import shutil 
 import numpy as np
 from search import recommend
+import re #正则
+import urllib.request
 import tarfile
 from datetime import datetime
 from scipy import ndimage
@@ -61,100 +63,88 @@ def image_tags():
 # 存储图片标签
 tagDict = image_tags()
 
-# 根据id获取图片内容
-# @app.route('/image', methods=['GET'])
-# def get_img():
-#     imageId = request.values.get('id')
-#
-#     # 将对应图片复制到static文件夹下
-#     with open('database/dataset/im' + imageId + '.jpg', mode='rb') as f:
-#         byte_data = f.read()
-#
-#     return Response(byte_data, mimetype='image/jpeg')
-#
-#
-# # 获取用户全部收藏
-# @app.route('/collect/all', methods=['GET'])
-# def get_all_collect():
-#     res = []
-#     with open('database/favorites.txt', mode='r') as f:
-#         for i in f.readlines():
-#             res.append(i.strip())
-#     return jsonify(res)
-#
-#
-# # 改变图片收藏状态
-# @app.route('/collect', methods=['GET'])
-# def change_img_collect():
-#     imageId = request.values.get('id')
-#
-#     # 获取collect文件夹内容
-#     with open('database/favorites.txt', mode='r') as f:
-#         s = f.readlines()
-#
-#     p = []
-#     isCollected = False
-#     for i in s:
-#         # 已经收藏过了
-#         if i.strip() == imageId:
-#             isCollected = True
-#         else:
-#             p.append(i.strip())
-#
-#     if not isCollected:
-#         p.append(imageId)
-#
-#     # 写文件
-#     n = len(p)
-#     with open('database/favorites.txt', mode='w') as f:
-#         for index, item in enumerate(p):
-#             if index != n - 1:
-#                 f.write(item + '\n')
-#             else:
-#                 f.write(item)
-#
-#     return jsonify({
-#         'status': True,
-#     })
-#
-#
-# @app.route("/tags", methods=['GET'])
-# def get_tags():
-#     res = []
-#     for i in typeDict.keys():
-#         res.append({
-#             'label': i,
-#             'size': len(typeDict[i]),
-#         })
-#     res.sort(key=lambda x: x['size'], reverse=True)
-#     return jsonify(res)
-#
-#
-# @app.route('/info', methods=['GET'])
-# def get_img_info():
-#     imageId = request.values.get('id')
-#
-#     # 查看favorites文件夹
-#     with open('database/favorites.txt', mode='r') as f:
-#         isCollected = False
-#         for i in f.readlines():
-#             if i.strip() == imageId:
-#                 isCollected = True
-#                 break
-#
-#     # 获取图片类型
-#     tags = []
-#     for i in typeDict.keys():
-#         if imageId in typeDict[i]:
-#             tags.append(i)
-#
-#     return jsonify({
-#         'isCollected': isCollected,
-#         'tags': tags,
-#     })
-
 # 用户上传文件对应的标签
 upload_tag = []
+
+
+# 收藏图片
+@app.route('/collect',methods=['POST','GET'])
+def add_collection():
+    # 获取上传图片的图片名和图片路径\
+    imgSrc = request.form.get('imgSrc')
+    img_src=imgSrc.encode()
+    img_name = re.findall(r'[^\\/:*?"<>|\r\n]+$', imgSrc)[0]
+    #被选择的图片文件名是否在收藏夹collection中,若在，则img_collect=true,
+    file_path = os.path.join('static/collection', img_name)
+    img_collect=os.path.exists(file_path);
+    print(img_collect)
+
+    # 图片已收藏
+    if(img_collect):
+        os.remove(file_path) # 删除文件
+    # 图片未收藏
+    else:
+        # 创建 collection 文件夹
+        collection = 'static/collection'
+        if not gfile.Exists(collection):
+            os.mkdir(collection)
+        # 将图像保存到指定路径
+        with open('static/collection/' + img_name, 'wb') as f:
+            f.write(img_src)
+
+    return jsonify({'img_collect':img_collect})
+
+@app.route('/mycollection')
+def mycollection():
+    return render_template('collection.html')
+
+@app.route('/show_collection',methods=['POST','GET'])
+def show_collection():
+    collection_path = 'static/collection'
+    # img_paths = [os.path.join(collection_path, img_name) for img_name in os.listdir(collection_path)]
+
+    collection = "/collection"
+    img_paths = [os.path.join(collection, file) for file in os.listdir(collection_path)
+                  if not file.startswith('.')]
+    # for i in img_paths:
+    #     i= i.replace('/collection\\', 'http://127.0.0.1:5000/')
+    #     print(i)
+
+    return jsonify({'img_paths':img_paths})
+
+
+# 判断选中的图片是否已收藏
+# @app.route('/is_collected',methods=['POST'])
+# def is_collected():
+#     imgSrc = request.form.get('imgSrc')
+#     img_name = re.findall(r'[^\\/:*?"<>|\r\n]+$', imgSrc)[0]
+#     print(imgSrc)
+#     print(img_name)
+#
+#     # 被选择的图片文件名是否在收藏夹collection中,若在，则img_collect=true,
+#     file_path = os.path.join('static', 'collection', img_name)
+#     img_collect = os.path.exists(file_path);
+#
+#     return jsonify({'img_collect':img_collect})
+
+@app.route('/filter', methods=['POST'])
+def filter_images():
+    # 解析POST请求的参数
+    select_tag = request.form.get('select_tag')
+    # 这里可以根据接收到的参数来处理相应的业务逻辑，比如过滤图片
+    #response：最终返回的过滤结果
+    response = {}
+    count=0  #过滤出的图片数量
+    # print("select_tag",select_tag)
+    # for i in tagDict[select_tag]:
+    #     result_path='http://127.0.0.1:5000/result/im' + i + '.jpg'  # 返回过滤后的图片URL
+    #     if os.path.exists(result_path):
+    #         response['image'+count]=result_path
+    #         count=count+1
+
+    response['num']=count;#过滤出的图片数量
+
+    return jsonify(response)
 
 #==============================================================================================================================
 #                                                                                                                              
@@ -180,6 +170,7 @@ def upload_img():
             return redirect(request.url)
         
         file = request.files['file']
+        print(file)
         print(file.filename)
         # if user does not select file, browser also
         # submit a empty part without filename
@@ -208,6 +199,7 @@ def upload_img():
 			'image7':image_list[7],	
 			'image8':image_list[8]
 		      }
+            print(images['image0'])
 
             #tagDict:tagname+num
             # 获取上传文件的文件名
@@ -224,28 +216,31 @@ def upload_img():
                     upload_tag.append(i)
             print(upload_tag)
 
+            # 二元数组，下标对应图片名
+            img_tag = [[] for i in range(0, 3000)]  # 创建一个包含3000个空列表的数组
+            # i：图片名
+            for i in range(0, 3000):
+                # j：标签名
+                for j in tags:
+                    # 若i图片拥有标签j，则将j加入数组
+                    if str(i) in tagDict[j]:
+                        img_tag[i].append(j)
 
-            upload_dict={"images":images,"upload_tag":upload_tag}
+            for i in range(0,10):
+                print(img_tag[i])
+
+
+            upload_dict={"images":images,"upload_tag":upload_tag,"img_tag":img_tag}
 
             return jsonify(upload_dict)
 
- # 二元数组，下标对应图片名
-img_tag = [[] for i in range(0, 3000)] # 创建一个包含3000个空列表的数组
-# i：图片名
-for i in range(0, 3000):
-    # j：标签名
-    for j in tags:
-        # 若i图片拥有标签j，则将j加入数组
-        if i in tagDict[j]:
-            img_tag[i].append(j)
-
-for i in range(0,3000):
-    print(img_tag[i])
 
 
-@app.route('/AllTags',methods=['POST','GET'])
-def Tags():
-    return jsonify(img_tag)
+
+#返回一个二维数组，第一个下标对应图片名数字，数组元素为一个字符串数组，对应该图片的标签
+# @app.route('/AllTags',methods=['POST','GET'])
+# def Tags():
+#     return jsonify(img_tag)
 
 
 #==============================================================================================================================
@@ -253,7 +248,7 @@ def Tags():
 #                                           Main function                                                        	            #						     									       
 #  				                                                                                                
 #==============================================================================================================================
-@app.route("/")
+@app.route("/",methods=['GET', 'POST'])
 def main():
     return render_template("main.html")
 if __name__ == '__main__':
