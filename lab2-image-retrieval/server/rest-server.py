@@ -12,6 +12,8 @@ import os
 import shutil 
 import numpy as np
 from search import recommend
+from pathlib import Path
+import requests
 import re #正则
 import urllib.request
 import tarfile
@@ -72,25 +74,31 @@ upload_tag = []
 def add_collection():
     # 获取上传图片的图片名和图片路径\
     imgSrc = request.form.get('imgSrc')
-    img_src=imgSrc.encode()
-    img_name = re.findall(r'[^\\/:*?"<>|\r\n]+$', imgSrc)[0]
+
+    #获取收藏的图片名
+    new_filename = os.path.basename(imgSrc)
+    #修改imgSrc
+    imgSrc = os.path.join('static','collection', new_filename)
     #被选择的图片文件名是否在收藏夹collection中,若在，则img_collect=true,
-    file_path = os.path.join('static/collection', img_name)
-    img_collect=os.path.exists(file_path);
+    img_collect = os.path.exists(imgSrc);
     print(img_collect)
+    print(imgSrc)
+
 
     # 图片已收藏
     if(img_collect):
-        os.remove(file_path) # 删除文件
+        os.remove(imgSrc) # 删除文件
     # 图片未收藏
     else:
         # 创建 collection 文件夹
-        collection = 'static/collection'
-        if not gfile.Exists(collection):
-            os.mkdir(collection)
-        # 将图像保存到指定路径
-        with open('static/collection/' + img_name, 'wb') as f:
-            f.write(img_src)
+        folder = 'static/collection'
+        if not gfile.Exists(folder):
+            os.mkdir(folder)
+        # 将对应图片复制到static文件夹下
+        with open('database/dataset/' + new_filename, mode='rb') as f:
+            byte_data = f.read()
+        with open('static/collection/' + new_filename, 'wb') as f:
+            f.write(byte_data)
 
     return jsonify({'img_collect':img_collect})
 
@@ -106,26 +114,25 @@ def show_collection():
     collection = "/collection"
     img_paths = [os.path.join(collection, file) for file in os.listdir(collection_path)
                   if not file.startswith('.')]
-    # for i in img_paths:
-    #     i= i.replace('/collection\\', 'http://127.0.0.1:5000/')
-    #     print(i)
 
     return jsonify({'img_paths':img_paths})
 
 
 # 判断选中的图片是否已收藏
-# @app.route('/is_collected',methods=['POST'])
-# def is_collected():
-#     imgSrc = request.form.get('imgSrc')
-#     img_name = re.findall(r'[^\\/:*?"<>|\r\n]+$', imgSrc)[0]
-#     print(imgSrc)
-#     print(img_name)
-#
-#     # 被选择的图片文件名是否在收藏夹collection中,若在，则img_collect=true,
-#     file_path = os.path.join('static', 'collection', img_name)
-#     img_collect = os.path.exists(file_path);
-#
-#     return jsonify({'img_collect':img_collect})
+@app.route('/is_collected',methods=['POST'])
+def is_collected():
+    # 获取上传图片的图片名和图片路径\
+    imgSrc = request.form.get('imgSrc')
+
+    # 获取收藏的图片名
+    new_filename = os.path.basename(imgSrc)
+    # 修改imgSrc
+    imgSrc = os.path.join('static', 'collection', new_filename)
+    # 被选择的图片文件名是否在收藏夹collection中,若在，则img_collect=true,
+    img_collect = os.path.exists(imgSrc);
+    print("iscolelet",img_collect)
+
+    return jsonify({'img_collect':img_collect})
 
 @app.route('/filter', methods=['POST'])
 def filter_images():
@@ -133,16 +140,18 @@ def filter_images():
     select_tag = request.form.get('select_tag')
     # 这里可以根据接收到的参数来处理相应的业务逻辑，比如过滤图片
     #response：最终返回的过滤结果
-    response = {}
+    result=[]
     count=0  #过滤出的图片数量
-    # print("select_tag",select_tag)
-    # for i in tagDict[select_tag]:
-    #     result_path='http://127.0.0.1:5000/result/im' + i + '.jpg'  # 返回过滤后的图片URL
-    #     if os.path.exists(result_path):
-    #         response['image'+count]=result_path
-    #         count=count+1
-
-    response['num']=count;#过滤出的图片数量
+    print("select_tag",select_tag)
+    for i in tagDict[select_tag]:
+        result_path='static/result/im' + i + '.jpg'  # 返回过滤后的图片URL
+        if os.path.exists(result_path):
+            print(i)
+            result_path = '/result/im' + i + '.jpg'
+            result.append(result_path)
+            count=count+1
+    print(count)
+    response={'num':count,'result':result}
 
     return jsonify(response)
 
